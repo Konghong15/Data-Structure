@@ -12,8 +12,6 @@ namespace hong
 	template <typename KeyType>
 	struct Hash
 	{
-		enum { INVALID = -1 };
-
 		size_t operator()(KeyType key)
 		{
 			assert(false);
@@ -49,7 +47,7 @@ namespace hong
 		ValueType Value;
 	};
 
-	template <typename KeyType, typename ValueType>
+	template <typename KeyType, typename ValueType, typename Hash = Hash<KeyType>>
 	class HashMap
 	{
 	public:
@@ -59,34 +57,30 @@ namespace hong
 		bool Insert(KeyType key, ValueType value);
 		bool Find(KeyType key, ValueType* outValue);
 
-		void SetHashFunction(std::function<size_t(KeyType)> hashFunc);
-
 		size_t GetCount() const { return mCount; }
 
 	private:
-		std::function<size_t(KeyType)> mHashFunc;
 		size_t mCount;
 		size_t mCapacity;
 
 		std::vector<std::list<Data<KeyType, ValueType>>> mArr;
 	};
 
-	template <typename KeyType, typename ValueType>
-	HashMap<KeyType, ValueType>::HashMap(size_t capacity)
-		: mHashFunc(Hash<KeyType>())
-		, mCount(0)
+	template <typename KeyType, typename ValueType, typename Hash>
+	HashMap<KeyType, ValueType, Hash>::HashMap(size_t capacity)
+		: mCount(0)
 		, mCapacity(capacity)
 		, mArr(capacity)
 	{
 		assert(mArr.size() == mCapacity);
 	}
 
-	template <typename KeyType, typename ValueType>
-	bool HashMap<KeyType, ValueType>::Insert(KeyType key, ValueType value)
+	template <typename KeyType, typename ValueType, typename Hash>
+	bool HashMap<KeyType, ValueType, Hash>::Insert(KeyType key, ValueType value)
 	{
 		assert(mArr.size() == mCapacity);
 
-		size_t index = mHashFunc(key) % mCapacity;
+		size_t index = Hash()(key) % mCapacity;
 		std::list<Data<KeyType, ValueType>>& list = mArr[index];
 
 		for (const Data<KeyType, ValueType>& element : list)
@@ -103,12 +97,12 @@ namespace hong
 		return true;
 	}
 
-	template <typename KeyType, typename ValueType>
-	bool HashMap<KeyType, ValueType>::Find(KeyType key, ValueType* outValue)
+	template <typename KeyType, typename ValueType, typename Hash>
+	bool HashMap<KeyType, ValueType, Hash>::Find(KeyType key, ValueType* outValue)
 	{
 		assert(mArr.size() == mCapacity);
 
-		size_t index = mHashFunc(key) % mCapacity;
+		size_t index = Hash()(key) % mCapacity;
 		std::list<Data<KeyType, ValueType>>& list = mArr[index];
 
 		for (const Data<KeyType, ValueType>& element : list)
@@ -121,11 +115,5 @@ namespace hong
 		}
 
 		return false;
-	}
-
-	template <typename KeyType, typename ValueType>
-	void HashMap<KeyType, ValueType>::SetHashFunction(std::function<size_t(KeyType)> hashFunc)
-	{
-		mHashFunc = hashFunc;
 	}
 }
