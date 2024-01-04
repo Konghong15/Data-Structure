@@ -111,7 +111,7 @@ void test_find()
 	for (int i = 0; i < stringArr.size(); ++i)
 	{
 		int outValue;
-		myHashMap.Find(stringArr[i], &outValue);
+		assert(myHashMap.Find(stringArr[i], &outValue));
 
 		assert(outValue == i);
 	}
@@ -192,9 +192,9 @@ void calculate_Find(size_t mapSize, size_t elementCount)
 
 		start = system_clock::now();
 
+		int outValue;
 		for (int i = 0; i < stringArr.size(); ++i)
 		{
-			int outValue;
 			myHashMap.Find(stringArr[i], &outValue);
 		}
 
@@ -219,7 +219,7 @@ void calculate_Find(size_t mapSize, size_t elementCount)
 
 		for (int i = 0; i < stringArr.size(); ++i)
 		{
-			auto find = unorderedMap.find(stringArr[i]);
+			unorderedMap.find(stringArr[i]);
 		}
 
 		end = system_clock::now();
